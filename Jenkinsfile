@@ -1,5 +1,9 @@
 pipeline {
   agent any
+  environment {
+    MAJOR_VERSION = 1
+  }
+
 
   stages {
     stage('build') {
@@ -11,7 +15,7 @@ pipeline {
 
   post {
      always{
-       archiveArtifacts artifacts: 'dist/*.jar', fingerprint: true 
+       archiveArtifacts artifacts: 'dist/*.jar', fingerprint: true
      }
   }
 }
