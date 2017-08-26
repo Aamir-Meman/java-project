@@ -9,13 +9,13 @@ pipeline {
 /*retention of build and artifacts to control of something which takes much memory
 * 2 build and only 1 artifact
 */
-options {
+
+/* options {
   buildDiscarder(logRotator(numToKeepStr: '2' , artifactNumToKeepStr: '1' ))
-}
+}*/
 
 
   stages {
-
   stage('Unit Tests') {
     steps {
       sh 'ant -f test.xml -v'
