@@ -64,6 +64,7 @@ pipeline {
       }
     }
 
+ /* tesing in flavor Debian using openjdk image */
     stage("Test on Debian"){
       agent {
         docker 'openjdk:8u121-jre'
@@ -74,9 +75,14 @@ pipeline {
        sh "java -jar rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar 3 4"
      }
     }
+
+  /* If build is successful in all promote to green */
   stage('Promote to Green'){
     agent {
       label 'apache'
+    }
+    when {
+      branch 'development'
     }
     steps {
       sh "cp /var/www/html/rectangles/all/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/green/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
