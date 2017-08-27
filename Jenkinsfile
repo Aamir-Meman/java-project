@@ -1,7 +1,5 @@
 pipeline {
-  agent {
-    label 'master'
-  }
+  agent none
 
 /* environment step to be assigned */
   environment {
@@ -18,8 +16,12 @@ pipeline {
 
 
   stages {
+
     /* Running a junit Test */
     stage('Unit Tests') {
+      agent {
+        label 'apache'
+      }
       steps {
         sh 'ant -f test.xml -v'
         junit 'reports/result.xml'
@@ -28,20 +30,36 @@ pipeline {
 
     /* Running a build file */
     stage('build') {
+      agent {
+        label 'apache'
+      }
       steps {
           sh 'ant -f build.xml -v'
      }
   }
-  /* Deploying on apache  */
+
+    /* Deploying on apache  */
     stage('deploy'){
+      agent {
+        label 'apache'
+      }
       steps{
         sh "cp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/"
       }
     }
 
+    /* Running on different flavor */
+    stage('Running on CentOS'){
+      agent{
+        label 'CentOs'
+      }
+      steps{
+        sh "wget http://muqeed07861.mylabserver.com/rectangles/all/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
+        sh "java -jar rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar 3 4"
+      }
+    }
 
 }
-
   post {
      always{
        archiveArtifacts artifacts: 'dist/*.jar', fingerprint: true
