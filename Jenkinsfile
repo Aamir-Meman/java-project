@@ -49,7 +49,8 @@ pipeline {
         label 'apache'
       }
       steps{
-        sh "cp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/"
+        sh " mkdir /var/www/html/rectangles/all/${env.BRANCH_NAME}"
+        sh "cp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/${env.BRANCH_NAME}/"
       }
     }
 
@@ -59,7 +60,7 @@ pipeline {
         label 'CentOs'
       }
       steps{
-        sh "wget http://muqeed07861.mylabserver.com/rectangles/all/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
+        sh "wget http://muqeed07861.mylabserver.com/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
         sh "java -jar rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar 3 4"
       }
     }
@@ -71,7 +72,7 @@ pipeline {
       }
 
      steps{
-       sh "wget http://muqeed07861.mylabserver.com/rectangles/all/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
+       sh "wget http://muqeed07861.mylabserver.com/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
        sh "java -jar rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar 3 4"
      }
     }
@@ -82,12 +83,34 @@ pipeline {
       label 'apache'
     }
     when {
-      branch 'development'
+      branch 'master'
     }
     steps {
       sh "cp /var/www/html/rectangles/all/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/green/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
       }
     }
+  /* Promoting development branch to master */
+  stage(' Promote development branch to master ') {
+    agent {
+      label 'apache'
+    }
+    when {
+      branch 'development'
+    }
+    steps {
+     echo " Stashing any local changes "
+     sh 'git stash'
+     echo "Checking out development Branch"
+     sh 'git checkout development'
+     echo "Checking out master Branch"
+     sh 'git checkout master'
+     echo " Merging Development into Master Branch"
+     sh 'git merge development'
+     echo "Pushing to Origin Master"
+     sh 'git push origin master'
+    }
+  }
+
   }
 
 }
