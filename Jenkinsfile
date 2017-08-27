@@ -75,6 +75,9 @@ pipeline {
      }
     }
   stage('Promote to Green'){
+    agent {
+      label 'apache'
+    }
     steps {
       sh 'cp /var/www/html/rectangles/green/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar'
       }
