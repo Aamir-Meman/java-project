@@ -1,5 +1,7 @@
 pipeline {
-  agent any
+  agent {
+    label 'master'
+  }
 
 /* environment step to be assigned */
   environment {
@@ -16,19 +18,28 @@ pipeline {
 
 
   stages {
-  stage('Unit Tests') {
-    steps {
-      sh 'ant -f test.xml -v'
-      junit 'reports/result.xml'
+    /* Running a junit Test */
+    stage('Unit Tests') {
+      steps {
+        sh 'ant -f test.xml -v'
+        junit 'reports/result.xml'
+      }
     }
-  }
 
-
+    /* Running a build file */
     stage('build') {
       steps {
           sh 'ant -f build.xml -v'
      }
   }
+  /* Deploying on apache  */
+    stage('deploy'){
+      steps{
+        sh "cp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/"
+      }
+    }
+
+
 }
 
   post {
